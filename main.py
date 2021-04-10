@@ -2,7 +2,10 @@
 
 from urllib.request import Request, urlopen
 from os import path
+import matplotlib.pyplot as plt
 import json
+
+MAX_PER_PAGE = 100
 
 def getUserBoolean(sentence):
     print(sentence)
@@ -37,13 +40,36 @@ def main():
     else:
         j = readConfigFromInput()
 
-    req = Request(f"https://api.github.com/users/{j['username']}/repos?per_page=5", headers={'Authorization': 'token ' + j['token']})
-    content = urlopen(req).read()
-    for elem in json.loads(content):
-        req = Request(f"https://api.github.com/repos/{j['username']}/{elem['name']}/traffic/clones", headers={'Authorization': 'token ' + j['token']})
+    names = []
+    page = 1
+    while True:
+        tmp = []
+        req = Request(f"https://api.github.com/users/{j['username']}/repos?per_page=" + str(MAX_PER_PAGE) + "&page=" + str(page), headers={'Authorization': 'token ' + j['token']})
+        content = urlopen(req).read()
+        for elem in json.loads(content):
+            tmp.append(elem['name'])
+        names += tmp
+        if len(tmp) < MAX_PER_PAGE:
+            break
+        page += 1
+
+    print(str(len(names)) + " repositories found", flush=True)
+
+    labels = []
+    values = []
+
+    for elem in names:
+        req = Request(f"https://api.github.com/repos/{j['username']}/{elem}/traffic/views", headers={'Authorization': 'token ' + j['token']})
         response = urlopen(req).read()
-        print(response)
-        print("\n\n")
+        jA = json.loads(response)
+        if jA['uniques'] > 1:
+            labels.append(elem)
+            values.append(jA['uniques'])
+        print(f"{elem} - Unique views: {jA['uniques']}", flush=True)
+
+    fig1, ax1 = plt.subplots()
+    ax1.pie(values, labels=labels)
+    plt.show()
 
 if __name__ == "__main__":
     main()
