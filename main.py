@@ -74,7 +74,7 @@ def main():
 
     # Display data
     plt.bar(labels, height=values)
-    plt.title("Unique view per repository")
+    plt.title("Unique view per repository (14 last days)")
 
     for index, data in enumerate(values):
         plt.text(x=index, y=data + 1, s=data, ha='center')
