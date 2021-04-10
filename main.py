@@ -40,11 +40,12 @@ def main():
     else:
         j = readConfigFromInput()
 
+    # Get all repositories
     names = []
     page = 1
     while True:
         tmp = []
-        req = Request(f"https://api.github.com/users/{j['username']}/repos?per_page=" + str(MAX_PER_PAGE) + "&page=" + str(page), headers={'Authorization': 'token ' + j['token']})
+        req = Request(f"https://api.github.com/users/{j['username']}/repos?per_page=" + str(MAX_PER_PAGE) + "&page=" + str(page))
         content = urlopen(req).read()
         for elem in json.loads(content):
             tmp.append(elem['name'])
@@ -58,6 +59,7 @@ def main():
     labels = []
     values = []
 
+    # Get metrics about all repositories
     for elem in names:
         req = Request(f"https://api.github.com/repos/{j['username']}/{elem}/traffic/views", headers={'Authorization': 'token ' + j['token']})
         response = urlopen(req).read()
@@ -67,8 +69,20 @@ def main():
             values.append(jA['uniques'])
         print(f"{elem} - Unique views: {jA['uniques']}", flush=True)
 
-    fig1, ax1 = plt.subplots()
-    ax1.pie(values, labels=labels)
+    # Sort data get from biggest to lowest
+    values, labels = zip(*sorted(zip(values, labels), reverse=True))
+
+    # Display data
+    plt.bar(labels, height=values)
+    plt.title("Unique view per repository")
+
+    for index, data in enumerate(values):
+        plt.text(x=index, y=data + 1, s=data, ha='center')
+
+    plt.tick_params(left=False, labelleft=False)
+    plt.box(False)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
