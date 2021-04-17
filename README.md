@@ -10,3 +10,6 @@ Just launch it, follow the instructions on screen and wait for it to generate yo
  - Clone the repository
  - Install the dependencies: `pip install -r requirements.txt`
  - Launch it: `python3 main.py`
+
+## Preview
+![Preview](Preview/Preview.png)
