@@ -41,6 +41,7 @@ def main():
         j = readConfigFromInput()
 
     # Get all repositories
+    print("Gathering information about the repositories...", flush=True)
     names = []
     page = 1
     while True:
@@ -70,7 +71,7 @@ def main():
         print(f"{elem} - Unique views: {jA['uniques']}", flush=True)
 
     # Sort data get from biggest to lowest
-    values, labels = zip(*sorted(zip(values, labels), reverse=True))
+    values, labels = zip(*sorted(zip(values, labels), reverse=True)[:20])
 
     # Display data
     plt.bar(labels, height=values)
